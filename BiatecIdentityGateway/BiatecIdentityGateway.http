@@ -1,0 +1,6 @@
+@BiatecIdentityGateway_HostAddress = http://localhost:5072
+
+GET {{BiatecIdentityGateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
