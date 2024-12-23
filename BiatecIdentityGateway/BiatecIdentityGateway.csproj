@@ -42,4 +42,10 @@
 		<Protobuf Include="Protos\service.proto" />
 		<Protobuf Include="Protos\biatecidentity.proto" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="doc\readme.md">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 </Project>
