@@ -1,6 +1,7 @@
 using BiatecIdentityGateway.BusinessController;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 namespace BiatecIdentityGateway.Controllers
 {
@@ -25,24 +26,48 @@ namespace BiatecIdentityGateway.Controllers
         /// </summary>
         /// <param name="docId">Document id</param>
         /// <returns>byte[] of the document</returns>
-        [Route("/v1/document/{docId}")]
+        [Route("/v1/document/{docId}/binary")]
         [HttpGet]
-        public Task<byte[]> GetDocument([FromRoute] string docId)
+        public Task<byte[]> GetDocumentByteArray([FromRoute] string docId)
         {
             _logger.LogInformation($"GetDocument {docId}");
             return _gateway.GetDocumentAsync(docId, User?.Identity?.Name ?? throw new Exception("Unathorized"));
+        }
+        /// <summary>
+        /// Loads the document from helpers
+        /// </summary>
+        /// <param name="docId">Document id</param>
+        /// <returns>byte[] of the document</returns>
+        [Route("/v1/document/{docId}/utf")]
+        [HttpGet]
+        public async Task<string> GetDocumentUtf([FromRoute] string docId)
+        {
+            _logger.LogInformation($"GetDocument {docId}");
+            return Encoding.UTF8.GetString(await _gateway.GetDocumentAsync(docId, User?.Identity?.Name ?? throw new Exception("Unathorized")));
         }
         /// <summary>
         /// Stores the document
         /// </summary>
         /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
         /// <returns>True if document has been stored</returns>
-        [Route("/v1/document")]
+        [Route("/v1/document/binary")]
         [HttpPost]
-        public Task<string> StoreDocument([FromBody] byte[] data)
+        public Task<string> StoreDocumentByteArray([FromBody] byte[] data)
         {
             _logger.LogInformation($"Document {data.Length}");
             return _gateway.StoreDocumentAsync(data, User?.Identity?.Name ?? throw new Exception("Unathorized"));
+        }
+        /// <summary>
+        /// Stores the document
+        /// </summary>
+        /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
+        /// <returns>True if document has been stored</returns>
+        [Route("/v1/document/utf8")]
+        [HttpPost]
+        public Task<string> StoreDocumentUtf([FromBody] string data)
+        {
+            _logger.LogInformation($"Document {data.Length}");
+            return _gateway.StoreDocumentAsync(Encoding.UTF8.GetBytes(data), User?.Identity?.Name ?? throw new Exception("Unathorized"));
         }
     }
 }
