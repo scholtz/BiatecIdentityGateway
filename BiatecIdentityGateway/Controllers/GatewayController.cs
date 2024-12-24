@@ -46,6 +46,18 @@ namespace BiatecIdentityGateway.Controllers
             return Encoding.UTF8.GetString(await _gateway.GetDocumentAsync(docId, User?.Identity?.Name ?? throw new Exception("Unathorized")));
         }
         /// <summary>
+        /// Loads the document from helpers
+        /// </summary>
+        /// <param name="docId">Document id</param>
+        /// <returns>byte[] of the document</returns>
+        [Route("/v1/document/{docId}/base64")]
+        [HttpGet]
+        public async Task<string> GetDocumentBase64([FromRoute] string docId)
+        {
+            _logger.LogInformation($"GetDocument {docId}");
+            return Convert.ToBase64String(await _gateway.GetDocumentAsync(docId, User?.Identity?.Name ?? throw new Exception("Unathorized")));
+        }
+        /// <summary>
         /// Stores the document
         /// </summary>
         /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
@@ -68,6 +80,18 @@ namespace BiatecIdentityGateway.Controllers
         {
             _logger.LogInformation($"Document {data.Length}");
             return _gateway.StoreDocumentAsync(Encoding.UTF8.GetBytes(data), User?.Identity?.Name ?? throw new Exception("Unathorized"));
+        }
+        /// <summary>
+        /// Stores the document
+        /// </summary>
+        /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
+        /// <returns>True if document has been stored</returns>
+        [Route("/v1/document/base64")]
+        [HttpPost]
+        public Task<string> StoreDocumentBase64([FromBody] string data)
+        {
+            _logger.LogInformation($"Document {data.Length}");
+            return _gateway.StoreDocumentAsync(Convert.FromBase64String(data), User?.Identity?.Name ?? throw new Exception("Unathorized"));
         }
     }
 }
