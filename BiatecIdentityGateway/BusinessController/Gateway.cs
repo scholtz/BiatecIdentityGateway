@@ -32,7 +32,7 @@ namespace BiatecIdentityGateway.BusinessController
         /// <param name="identity"></param>
         /// <returns>docId if successful stored</returns>
         /// <exception cref="Exception"></exception>
-        public async Task<string> StoreDocumentAsync(byte[] documentRawBytes, string identity)
+        public async Task<string> StoreDocumentAsync(byte[] documentRawBytes, string identity, string updateDocId = "")
         {
             var gatewaySigPublicKey = Google.Protobuf.ByteString.FromBase64(_options.Value.GatewaySignaturePublicKeyB64);
             var gatewaySigPrivateKey = Google.Protobuf.ByteString.FromBase64(_options.Value.GatewaySignaturePrivateKeyB64);
@@ -58,6 +58,10 @@ namespace BiatecIdentityGateway.BusinessController
             });
             var index = -1;
             var docId = Guid.NewGuid().ToString();
+            if (!string.IsNullOrEmpty(updateDocId))
+            {
+                docId = updateDocId;
+            }
             foreach (var helper in _options.Value.Helpers)
             {
                 index++;

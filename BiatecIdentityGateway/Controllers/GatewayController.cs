@@ -93,5 +93,43 @@ namespace BiatecIdentityGateway.Controllers
             _logger.LogInformation($"Document {data.Length}");
             return _gateway.StoreDocumentAsync(Convert.FromBase64String(data), User?.Identity?.Name ?? throw new Exception("Unathorized"));
         }
+
+
+        /// <summary>
+        /// Stores the document
+        /// </summary>
+        /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
+        /// <returns>True if document has been stored</returns>
+        [Route("/v1/document/{docId}/binary")]
+        [HttpPut]
+        public Task<string> StoreDocumentByteArray([FromRoute] string docId, [FromBody] byte[] data)
+        {
+            _logger.LogInformation($"Document {data.Length}");
+            return _gateway.StoreDocumentAsync(data, User?.Identity?.Name ?? throw new Exception("Unathorized"), docId);
+        }
+        /// <summary>
+        /// Stores the document
+        /// </summary>
+        /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
+        /// <returns>True if document has been stored</returns>
+        [Route("/v1/document/{docId}/utf8")]
+        [HttpPut]
+        public Task<string> StoreDocumentUtf([FromRoute] string docId, [FromBody] string data)
+        {
+            _logger.LogInformation($"Document {data.Length}");
+            return _gateway.StoreDocumentAsync(Encoding.UTF8.GetBytes(data), User?.Identity?.Name ?? throw new Exception("Unathorized"), docId);
+        }
+        /// <summary>
+        /// Stores the document
+        /// </summary>
+        /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
+        /// <returns>True if document has been stored</returns>
+        [Route("/v1/document/{docId}/base64")]
+        [HttpPut]
+        public Task<string> StoreDocumentBase64([FromRoute] string docId, [FromBody] string data)
+        {
+            _logger.LogInformation($"Document {data.Length}");
+            return _gateway.StoreDocumentAsync(Convert.FromBase64String(data), User?.Identity?.Name ?? throw new Exception("Unathorized"), docId);
+        }
     }
 }
