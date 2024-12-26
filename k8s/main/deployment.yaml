@@ -48,7 +48,7 @@ spec:
             failureThreshold: 2
             terminationGracePeriodSeconds: 1
         - name: biatec-identity-gateway-app
-          image: scholtz2/biatec-identity-gateway:1.2024.12.23-main
+          image: scholtz2/biatec-identity-gateway:1.2024.12.24-main
           imagePullPolicy: Always
           resources:
             requests:
@@ -77,6 +77,87 @@ spec:
             - name: biatec-identity-gateway-conf
               mountPath: /app/appsettings.json
               subPath: appsettings.json
+          env:
+            - name: GatewayConfig__GatewaySignaturePublicKeyB64
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__GatewaySignaturePublicKeyB64
+            - name: GatewayConfig__GatewaySignaturePrivateKeyB64
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__GatewaySignaturePrivateKeyB64
+            - name: GatewayConfig__GatewayEncryptionPublicKeyB64
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__GatewayEncryptionPublicKeyB64
+            - name: GatewayConfig__GatewayEncryptionPrivateKeyB64
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__GatewayEncryptionPrivateKeyB64
+            - name: GatewayConfig__Helpers__0__Host
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__Helpers__0__Host
+            - name: GatewayConfig__Helpers__0__HelperEncryptionPublicKeyB64
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__Helpers__0__HelperEncryptionPublicKeyB64
+            - name: GatewayConfig__Helpers__0__HelperSignaturePublicKeyB64
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__Helpers__0__HelperSignaturePublicKeyB64
+            - name: GatewayConfig__Helpers__1__Host
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__Helpers__1__Host
+            - name: GatewayConfig__Helpers__1__HelperEncryptionPublicKeyB64
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__Helpers__1__HelperEncryptionPublicKeyB64
+            - name: GatewayConfig__Helpers__1__HelperSignaturePublicKeyB64
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__Helpers__1__HelperSignaturePublicKeyB64
+            - name: GatewayConfig__Helpers__2__Host
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__Helpers__2__Host
+            - name: GatewayConfig__Helpers__2__HelperEncryptionPublicKeyB64
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__Helpers__2__HelperEncryptionPublicKeyB64
+            - name: GatewayConfig__Helpers__2__HelperSignaturePublicKeyB64
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__Helpers__2__HelperSignaturePublicKeyB64
+            - name: GatewayConfig__Helpers__3__Host
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__Helpers__3__Host
+            - name: GatewayConfig__Helpers__3__HelperEncryptionPublicKeyB64
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__Helpers__3__HelperEncryptionPublicKeyB64
+            - name: GatewayConfig__Helpers__3__HelperSignaturePublicKeyB64
+              valueFrom:
+                secretKeyRef:
+                  name: biatec-identity-gateway-secret
+                  key: GatewayConfig__Helpers__3__HelperSignaturePublicKeyB64
       volumes:
         - name: biatec-identity-gateway-conf
           configMap:
@@ -102,7 +183,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: biatec-identity-ingress-main
+  name: biatec-identity-gateway-ingress
   namespace: biatec-identity
   annotations:
     kubernetes.io/ingress.class: "nginx"
