@@ -1,7 +1,11 @@
+using BiatecIdentity;
 using BiatecIdentityGateway.BusinessController;
+using Google.Protobuf;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BiatecIdentityGateway.Controllers
 {
@@ -74,6 +78,21 @@ namespace BiatecIdentityGateway.Controllers
         /// </summary>
         /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
         /// <returns>True if document has been stored</returns>
+        [Route("/v1/document/{docId}/download")]
+        [HttpGet]
+        public async Task<IActionResult> GetDocumentDownloadWithContentType([FromRoute] string docId)
+        {
+            _logger.LogInformation($"Document download {docId}");
+            var doc = await _gateway.GetDocumentAsync(docId, User?.Identity?.Name ?? throw new Exception("Unathorized"));
+            var fileWithContentType = FileWithContentTypeAndName.Parser.ParseFrom(doc);
+
+            return File(fileWithContentType.Data.ToByteArray(), Encoding.UTF8.GetString(fileWithContentType.ContentType.Span), Encoding.UTF8.GetString(fileWithContentType.FileName.Span));
+        }
+        /// <summary>
+        /// Stores the document
+        /// </summary>
+        /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
+        /// <returns>True if document has been stored</returns>
         [Route("/v1/document/utf8")]
         [HttpPost]
         public Task<string> StoreDocumentUtf([FromBody] string data)
@@ -94,6 +113,34 @@ namespace BiatecIdentityGateway.Controllers
             return _gateway.StoreDocumentAsync(Convert.FromBase64String(data), User?.Identity?.Name ?? throw new Exception("Unathorized"));
         }
 
+        /// <summary>
+        /// Upload file with multiform post data
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        [HttpPost]
+        [Route("/v1/document/upload")]
+        public async Task<string> UploadFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                throw new Exception("No file provided");
+            }
+            // Save the file to the server
+            using MemoryStream stream = new();
+            await file.CopyToAsync(stream);
+
+            var fileName = Path.GetFileName(file.FileName);
+            var fileEncoded = new FileWithContentTypeAndName()
+            {
+                ContentType = ByteString.CopyFrom(Encoding.UTF8.GetBytes(file.ContentType)),
+                FileName = ByteString.CopyFrom(Encoding.UTF8.GetBytes(file.FileName)),
+                Data = ByteString.CopyFrom(stream.ToArray())
+            };
+
+            return await _gateway.StoreDocumentAsync(fileEncoded.ToByteArray(), User?.Identity?.Name ?? throw new Exception("Unathorized"));
+        }
 
         /// <summary>
         /// Stores the document

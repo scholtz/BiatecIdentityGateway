@@ -84,3 +84,13 @@ enum StatusEnum {
   FAIL = 2;
 
 }
+
+
+/*
+ * The request data to fetch the specific document. Signed response before encryption
+ */
+message FileWithContentTypeAndName {
+    bytes fileName = 1;
+    bytes contentType = 2;
+    bytes data = 3;
+}
