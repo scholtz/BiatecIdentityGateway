@@ -22,5 +22,9 @@
         /// Gateway e private key in base64
         /// </summary>
         public string GatewayEncryptionPrivateKeyB64 { get; set; } = string.Empty;
+        /// <summary>
+        /// List of biatec verifiers accounts
+        /// </summary>
+        public List<string> Admins { get; set; } = [];
     }
 }

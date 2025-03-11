@@ -30,6 +30,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddProblemDetails();
 builder.Services.AddSingleton<Gateway>();
+builder.Services.AddSingleton<SecurityController>();
 
 builder.Services.Configure<BiatecIdentityGateway.Model.Config>(
     builder.Configuration.GetSection("GatewayConfig"));

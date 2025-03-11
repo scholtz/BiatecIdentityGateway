@@ -15,22 +15,54 @@ namespace BiatecIdentityGateway.Controllers
     {
         private readonly ILogger<GatewayController> _logger;
         private readonly Gateway _gateway;
+        private readonly SecurityController _securityController;
 
         public GatewayController(
             ILogger<GatewayController> logger,
-            Gateway gateway
+            Gateway gateway,
+            SecurityController securityController
             )
         {
             _logger = logger;
             _gateway = gateway;
+            _securityController = securityController;
         }
 
+        /// <summary>
+        /// Lists the documents for specific user
+        /// 
+        /// This action can be performed only by biatec verifiers
+        /// </summary>
+        /// <param name="docId">Document id</param>
+        /// <returns>byte[] of the document</returns>
+        [Route("/v1/documents/{userId}")]
+        [HttpGet]
+        public Task<string[]> GetListOfDocumentsByAdmin([FromRoute] string userId)
+        {
+            _logger.LogInformation($"GetListOfDocumentsByAdmin {userId}");
+            var isAdmin = _securityController.IsBiatecVerifier(User?.Identity?.Name ?? throw new Exception("Unathorized"));
+            if (!isAdmin) throw new Exception("You are not authorized to perform this action");
+
+            return _gateway.GetUserDocumentsAsync(userId ?? throw new Exception("User not defined"));
+        }
+        /// <summary>
+        /// List the user documents by user him self
+        /// </summary>
+        /// <param name="docId">Document id</param>
+        /// <returns>byte[] of the document</returns>
+        [Route("/v1/documents")]
+        [HttpGet]
+        public Task<string[]> GetListOfDocumentsByUser()
+        {
+            _logger.LogInformation($"GetListOfDocumentsByUser");
+            return _gateway.GetUserDocumentsAsync(User?.Identity?.Name ?? throw new Exception("Unathorized"));
+        }
         /// <summary>
         /// Loads the document from helpers
         /// </summary>
         /// <param name="docId">Document id</param>
         /// <returns>byte[] of the document</returns>
-        [Route("/v1/document/{docId}/binary")]
+        [Route("/v1/document/binary/{docId}")]
         [HttpGet]
         public Task<byte[]> GetDocumentByteArray([FromRoute] string docId)
         {
@@ -42,7 +74,7 @@ namespace BiatecIdentityGateway.Controllers
         /// </summary>
         /// <param name="docId">Document id</param>
         /// <returns>byte[] of the document</returns>
-        [Route("/v1/document/{docId}/utf")]
+        [Route("/v1/document/utf8/{docId}")]
         [HttpGet]
         public async Task<string> GetDocumentUtf([FromRoute] string docId)
         {
@@ -54,7 +86,21 @@ namespace BiatecIdentityGateway.Controllers
         /// </summary>
         /// <param name="docId">Document id</param>
         /// <returns>byte[] of the document</returns>
-        [Route("/v1/document/{docId}/base64")]
+        [Route("/v1/document/utf8/{userId}/{docId}")]
+        [HttpGet]
+        public async Task<string> GetDocumentUtfByAdmin([FromRoute] string userId, [FromRoute] string docId)
+        {
+            _logger.LogInformation($"GetDocumentUtfByAdmin {userId} {docId}");
+            var isAdmin = _securityController.IsBiatecVerifier(User?.Identity?.Name ?? throw new Exception("Unathorized"));
+            if (!isAdmin) throw new Exception("You are not authorized to perform this action");
+            return Encoding.UTF8.GetString(await _gateway.GetDocumentAsync(docId, userId));
+        }
+        /// <summary>
+        /// Loads the document from helpers
+        /// </summary>
+        /// <param name="docId">Document id</param>
+        /// <returns>byte[] of the document</returns>
+        [Route("/v1/document/base64/{docId}")]
         [HttpGet]
         public async Task<string> GetDocumentBase64([FromRoute] string docId)
         {
@@ -147,7 +193,7 @@ namespace BiatecIdentityGateway.Controllers
         /// </summary>
         /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
         /// <returns>True if document has been stored</returns>
-        [Route("/v1/document/{docId}/binary")]
+        [Route("/v1/document/binary/{docId}")]
         [HttpPut]
         public Task<string> StoreDocumentByteArray([FromRoute] string docId, [FromBody] byte[] data)
         {
@@ -159,7 +205,7 @@ namespace BiatecIdentityGateway.Controllers
         /// </summary>
         /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
         /// <returns>True if document has been stored</returns>
-        [Route("/v1/document/{docId}/utf8")]
+        [Route("/v1/document/utf8/{docId}")]
         [HttpPut]
         public Task<string> StoreDocumentUtf([FromRoute] string docId, [FromBody] string data)
         {
@@ -171,7 +217,7 @@ namespace BiatecIdentityGateway.Controllers
         /// </summary>
         /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
         /// <returns>True if document has been stored</returns>
-        [Route("/v1/document/{docId}/base64")]
+        [Route("/v1/document/base64/{docId}")]
         [HttpPut]
         public Task<string> StoreDocumentBase64([FromRoute] string docId, [FromBody] string data)
         {
