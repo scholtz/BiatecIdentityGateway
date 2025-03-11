@@ -29,6 +29,19 @@ namespace BiatecIdentityGateway.Controllers
         }
 
         /// <summary>
+        /// Returns true if the curren authenicated user is registered as biatec verifier
+        /// </summary>
+        /// <param name="docId">Document id</param>
+        /// <returns>byte[] of the document</returns>
+        [Route("/v1/is-biatec-verifier")]
+        [HttpGet]
+        public bool GetIsAdmin()
+        {
+            _logger.LogInformation($"GetIsAdmin");
+            var isAdmin = _securityController.IsBiatecVerifier(User?.Identity?.Name ?? throw new Exception("Unathorized"));
+            return isAdmin;
+        }
+        /// <summary>
         /// Lists the documents for specific user
         /// 
         /// This action can be performed only by biatec verifiers
