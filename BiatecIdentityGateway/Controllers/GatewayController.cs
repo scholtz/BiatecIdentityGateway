@@ -137,7 +137,7 @@ namespace BiatecIdentityGateway.Controllers
         /// </summary>
         /// <param name="data">Encrypted by helper public key, signed with Gateway private key</param>
         /// <returns>True if document has been stored</returns>
-        [Route("/v1/document/{docId}/download")]
+        [Route("/v1/document/download/{docId}")]
         [HttpGet]
         public async Task<IActionResult> GetDocumentDownloadWithContentType([FromRoute] string docId)
         {
