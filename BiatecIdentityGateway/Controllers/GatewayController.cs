@@ -16,16 +16,19 @@ namespace BiatecIdentityGateway.Controllers
         private readonly ILogger<GatewayController> _logger;
         private readonly Gateway _gateway;
         private readonly SecurityController _securityController;
+        private readonly DocumentVerification _documentVerification;
 
         public GatewayController(
             ILogger<GatewayController> logger,
             Gateway gateway,
-            SecurityController securityController
+            SecurityController securityController,
+            DocumentVerification documentVerification
             )
         {
             _logger = logger;
             _gateway = gateway;
             _securityController = securityController;
+            _documentVerification = documentVerification;
         }
 
         /// <summary>
@@ -40,6 +43,21 @@ namespace BiatecIdentityGateway.Controllers
             _logger.LogInformation($"GetIsAdmin");
             var isAdmin = _securityController.IsBiatecVerifier(User?.Identity?.Name ?? throw new Exception("Unathorized"));
             return isAdmin;
+        }
+        /// <summary>
+        /// Validators can check the KYC
+        /// </summary>
+        /// <param name="docId">Document id</param>
+        /// <returns>byte[] of the document</returns>
+        [Route("/v1/validate-document/{userId}")]
+        [HttpGet]
+        public async Task<bool> ValidateDocument([FromRoute] string userId, [FromBody] string validationFailureReason = "")
+        {
+            _logger.LogInformation($"GetIsAdmin");
+            var isAdmin = _securityController.IsBiatecVerifier(User?.Identity?.Name ?? throw new Exception("Unathorized"));
+            if (!isAdmin) throw new Exception("You are not authorized to perform this action");
+
+            return await _documentVerification.ConfirmValidityOfDocument(userId, validationFailureReason, User.Identity.Name);
         }
         /// <summary>
         /// Lists the documents for specific user

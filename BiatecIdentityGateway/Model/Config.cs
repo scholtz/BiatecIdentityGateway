@@ -1,4 +1,6 @@
-﻿namespace BiatecIdentityGateway.Model
+﻿using System.Collections.Generic;
+
+namespace BiatecIdentityGateway.Model
 {
     public class Config
     {
@@ -26,5 +28,29 @@
         /// List of biatec verifiers accounts
         /// </summary>
         public List<string> Admins { get; set; } = [];
+        /// <summary>
+        /// Biatec Identity App Id at specific blockchain
+        /// 
+        /// Example:
+        /// "Apps": {
+        ///  "wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=": {
+        ///    "BiatecIdentity": 1,
+        ///    "BiatecConfig": 1
+        ///  },
+        ///  "SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=": {
+        ///    "BiatecIdentity": 1,
+        ///    "BiatecConfig": 1
+        ///  },
+        ///  "NbFPTiXlg5yw4FcZLqpoxnEPZjrfxb471aNSHp/e1Yw=": {
+        ///    "BiatecIdentity": 1,
+        ///    "BiatecConfig": 1
+        ///  }
+        ///}
+        /// </summary>
+        public Dictionary<string, Dictionary<string, ulong>> Apps { get; set; } = new();
+        /// <summary>
+        /// Account
+        /// </summary>
+        public string Account { get; set; } = String.Empty;
     }
 }
