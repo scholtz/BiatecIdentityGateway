@@ -1,5 +1,6 @@
 using BiatecIdentity;
 using BiatecIdentityGateway.BusinessController;
+using BiatecIdentityGateway.Generated;
 using Google.Protobuf;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -51,13 +52,13 @@ namespace BiatecIdentityGateway.Controllers
         /// <returns>byte[] of the document</returns>
         [Route("/v1/validate-document/{userId}")]
         [HttpGet]
-        public async Task<bool> ValidateDocument([FromRoute] string userId, [FromBody] string validationFailureReason = "")
+        public async Task<bool> ValidateDocument([FromRoute] string userId, [FromBody] BiatecIdentityProviderProxy.Structs.IdentityInfo userData, [FromQuery] string validationFailureReason = "")
         {
             _logger.LogInformation($"GetIsAdmin");
             var isAdmin = _securityController.IsBiatecVerifier(User?.Identity?.Name ?? throw new Exception("Unathorized"));
             if (!isAdmin) throw new Exception("You are not authorized to perform this action");
 
-            return await _documentVerification.ConfirmValidityOfDocument(userId, validationFailureReason, User.Identity.Name);
+            return await _documentVerification.ConfirmValidityOfDocument(userId, userData, validationFailureReason, User.Identity.Name);
         }
         /// <summary>
         /// Lists the documents for specific user

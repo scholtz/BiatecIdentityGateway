@@ -1,4 +1,6 @@
-﻿namespace BiatecIdentityGateway.Model
+﻿using BiatecIdentityGateway.Generated;
+
+namespace BiatecIdentityGateway.Model
 {
     public class VerificationForm
     {
@@ -22,5 +24,9 @@
         /// Verified at
         /// </summary>
         public DateTimeOffset VerifiedAt { get; set; }
+        /// <summary>
+        /// User info as it is meant to be stored in blockchain
+        /// </summary>
+        public BiatecIdentityProviderProxy.Structs.IdentityInfo IdentityInfo { get; set; } = null;
     }
 }
