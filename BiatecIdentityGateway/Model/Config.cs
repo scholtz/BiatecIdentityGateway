@@ -49,6 +49,10 @@ namespace BiatecIdentityGateway.Model
         /// </summary>
         public Dictionary<string, Dictionary<string, ulong>> Apps { get; set; } = new();
         /// <summary>
+        /// Email
+        /// </summary>
+        public string Email { get; set; } = String.Empty;
+        /// <summary>
         /// Account
         /// </summary>
         public string Account { get; set; } = String.Empty;

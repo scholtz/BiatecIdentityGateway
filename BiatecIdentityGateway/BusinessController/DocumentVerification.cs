@@ -32,7 +32,15 @@ namespace BiatecIdentityGateway.BusinessController
             _options = options;
             _chains = chains;
             _gateway = gateway;
-            _account = AlgorandARC76AccountDotNet.ARC76.GetAccount(_options.Value.Account);
+            if (string.IsNullOrEmpty(_options.Value.Email))
+            {
+
+                _account = AlgorandARC76AccountDotNet.ARC76.GetAccount(_options.Value.Account);
+            }
+            else
+            {
+                _account = AlgorandARC76AccountDotNet.ARC76.GetEmailAccount(_options.Value.Email, _options.Value.Account);
+            }
 
             logger.LogInformation($"Processing account: {_account.Address.EncodeAsString()}");
         }
