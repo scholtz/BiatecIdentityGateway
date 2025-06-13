@@ -55,26 +55,25 @@ namespace BiatecIdentityGateway.BusinessController
             _logger.LogInformation($"Getting user info for {userId}");
             foreach (var item in _options.Value.Apps)
             {
-                foreach (var app in item.Value)
+                var app = item.Value["BiatecIdentity"];
+                try
                 {
-                    try
+                    _logger.LogInformation($"Getting user info for {userId} at {item.Key} - {app}");
+                    if (!_chains.Value.AllowedNetworks.ContainsKey(item.Key))
                     {
-                        _logger.LogInformation($"Getting user info for {userId} at {item.Key} - {app.Value}");
-                        if (!_chains.Value.AllowedNetworks.ContainsKey(item.Key))
-                        {
-                            _logger.LogError($"Chain is missing: {item.Key} - {app.Value}");
-                            continue;
-                        }
-                        var chain = _chains.Value.AllowedNetworks[item.Key];
+                        _logger.LogError($"Chain is missing: {item.Key} - {app}");
+                        continue;
+                    }
+                    var chain = _chains.Value.AllowedNetworks[item.Key];
 
-                        var httpClient = HttpClientConfigurator.ConfigureHttpClient(chain.Server, chain.Token);
+                    var httpClient = HttpClientConfigurator.ConfigureHttpClient(chain.Server, chain.Token);
 
-                        byte[] box = new byte[] { (byte)'i' }.Concat(new Address(userId).Bytes).ToArray();
+                    byte[] box = new byte[] { (byte)'i' }.Concat(new Address(userId).Bytes).ToArray();
 
-                        DefaultApi algodApiInstance = new DefaultApi(httpClient);
-                        var contract = new BiatecIdentityProviderProxy(algodApiInstance, app.Value);
-                        _logger.LogInformation($"User info requested {userId} @ : {item.Key} - {app.Value}");
-                        return await contract.GetUser(new Address(userId), 0, _account, 1000, _tx_boxes: new List<BoxRef>(){
+                    DefaultApi algodApiInstance = new DefaultApi(httpClient);
+                    var contract = new BiatecIdentityProviderProxy(algodApiInstance, app);
+                    _logger.LogInformation($"User info requested {userId} @ : {item.Key} - {app}");
+                    return await contract.GetUser(new Address(userId), 0, _account, 1000, _tx_boxes: new List<BoxRef>(){
                         new BoxRef()
                         {
                             App = 0,
@@ -82,11 +81,10 @@ namespace BiatecIdentityGateway.BusinessController
 
                         }
                     });
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"Error while getting user info for {userId} at {item.Key} - {app.Value}");
-                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Error while getting user info for {userId} at {item.Key} - {app}");
                 }
             }
             return null;
@@ -109,23 +107,23 @@ namespace BiatecIdentityGateway.BusinessController
             _logger.LogInformation($"Confirming validity of document for {userId} with reason: {validationFailureReason} by {verifierUserId}");
             foreach (var item in _options.Value.Apps)
             {
-                foreach (var app in item.Value)
+                var app = item.Value["BiatecIdentity"];
+
+                _logger.LogInformation($"Confirming validity of document for {userId} at {item.Key} - {app}");
+                if (!_chains.Value.AllowedNetworks.ContainsKey(item.Key))
                 {
-                    _logger.LogInformation($"Confirming validity of document for {userId} at {item.Key} - {app.Value}");
-                    if (!_chains.Value.AllowedNetworks.ContainsKey(item.Key))
-                    {
-                        _logger.LogError($"Chain is missing: {item.Key} - {app.Value}");
-                        continue;
-                    }
-                    var chain = _chains.Value.AllowedNetworks[item.Key];
+                    _logger.LogError($"Chain is missing: {item.Key} - {app}");
+                    continue;
+                }
+                var chain = _chains.Value.AllowedNetworks[item.Key];
 
-                    var httpClient = HttpClientConfigurator.ConfigureHttpClient(chain.Server, chain.Token);
+                var httpClient = HttpClientConfigurator.ConfigureHttpClient(chain.Server, chain.Token);
 
-                    byte[] box = new byte[] { (byte)'i' }.Concat(new Address(userId).Bytes).ToArray();
+                byte[] box = new byte[] { (byte)'i' }.Concat(new Address(userId).Bytes).ToArray();
 
-                    DefaultApi algodApiInstance = new DefaultApi(httpClient);
-                    var contract = new BiatecIdentityProviderProxy(algodApiInstance, app.Value);
-                    await contract.SetInfo(new Address(userId), userData, _account, 1000, _tx_boxes: new List<BoxRef>(){
+                DefaultApi algodApiInstance = new DefaultApi(httpClient);
+                var contract = new BiatecIdentityProviderProxy(algodApiInstance, app);
+                await contract.SetInfo(new Address(userId), userData, _account, 1000, _tx_boxes: new List<BoxRef>(){
                         new BoxRef()
                         {
                             App = 0,
@@ -133,8 +131,7 @@ namespace BiatecIdentityGateway.BusinessController
 
                         }
                     });
-                    _logger.LogInformation($"User info updated {userId} @ : {item.Key} - {app.Value}");
-                }
+                _logger.LogInformation($"User info updated {userId} @ : {item.Key} - {app}");
             }
             var docId = "kyc-form.json";
             var verificationForm = new VerificationForm()
