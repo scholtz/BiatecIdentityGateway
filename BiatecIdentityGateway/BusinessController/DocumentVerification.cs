@@ -34,15 +34,15 @@ namespace BiatecIdentityGateway.BusinessController
             _gateway = gateway;
             if (string.IsNullOrEmpty(_options.Value.Email))
             {
-
                 _account = AlgorandARC76AccountDotNet.ARC76.GetAccount(_options.Value.Account);
+                logger.LogInformation($"Processing account: {_account.Address.EncodeAsString()}");
             }
             else
             {
                 _account = AlgorandARC76AccountDotNet.ARC76.GetEmailAccount(_options.Value.Email, _options.Value.Account);
+                logger.LogInformation($"Processing account: {_options.Value.Email} {_account.Address.EncodeAsString()}");
             }
 
-            logger.LogInformation($"Processing account: {_account.Address.EncodeAsString()}");
         }
         /// <summary>
         /// Validator can check the document and mark is as valid or invalid. If validationFailureReason is set, the docment is invalid.
