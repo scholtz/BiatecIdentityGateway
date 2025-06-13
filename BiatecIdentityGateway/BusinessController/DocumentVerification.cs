@@ -1,13 +1,14 @@
-﻿using Algorand.Algod;
-using Algorand;
+﻿using Algorand;
+using Algorand.Algod;
 using Algorand.Algod.Model;
+using AlgorandAuthentication;
+using AlgorandAuthenticationV2;
+using BiatecIdentityGateway.Generated;
 using BiatecIdentityGateway.Model;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Text;
-using AlgorandAuthentication;
-using AlgorandAuthenticationV2;
-using BiatecIdentityGateway.Generated;
+using static BiatecIdentityGateway.Generated.BiatecIdentityProviderProxy.Structs;
 
 namespace BiatecIdentityGateway.BusinessController
 {
@@ -44,6 +45,51 @@ namespace BiatecIdentityGateway.BusinessController
             }
 
         }
+        /// <summary>
+        /// Get user info from blockchain. If user does not exist, it returns null.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<UserInfoV1?> GetUser(string userId)
+        {
+            foreach (var item in _options.Value.Apps)
+            {
+                foreach (var app in item.Value)
+                {
+                    try
+                    {
+                        if (!_chains.Value.AllowedNetworks.ContainsKey(item.Key))
+                        {
+                            _logger.LogError($"Chain is missing: {item.Key} - {app.Value}");
+                            continue;
+                        }
+                        var chain = _chains.Value.AllowedNetworks[item.Key];
+
+                        var httpClient = HttpClientConfigurator.ConfigureHttpClient(chain.Server, chain.Token);
+
+                        byte[] box = new byte[] { (byte)'i' }.Concat(new Address(userId).Bytes).ToArray();
+
+                        DefaultApi algodApiInstance = new DefaultApi(httpClient);
+                        var contract = new BiatecIdentityProviderProxy(algodApiInstance, app.Value);
+                        _logger.LogInformation($"User info requested {userId} @ : {item.Key} - {app.Value}");
+                        return await contract.GetUser(new Address(userId), 0, _account, 1000, _tx_boxes: new List<BoxRef>(){
+                        new BoxRef()
+                        {
+                            App = 0,
+                            Name = box,
+
+                        }
+                    });
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Error while getting user info for {userId} at {item.Key} - {app.Value}");
+                    }
+                }
+            }
+            return null;
+        }
+
         /// <summary>
         /// Validator can check the document and mark is as valid or invalid. If validationFailureReason is set, the docment is invalid.
         /// </summary>

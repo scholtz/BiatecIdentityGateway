@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Text;
+using static BiatecIdentityGateway.Generated.BiatecIdentityProviderProxy.Structs;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BiatecIdentityGateway.Controllers
@@ -51,7 +52,7 @@ namespace BiatecIdentityGateway.Controllers
         /// <param name="docId">Document id</param>
         /// <returns>byte[] of the document</returns>
         [Route("/v1/validate-document/{userId}")]
-        [HttpGet]
+        [HttpPost]
         public async Task<bool> ValidateDocument([FromRoute] string userId, [FromBody] BiatecIdentityProviderProxy.Structs.IdentityInfo userData, [FromQuery] string validationFailureReason = "")
         {
             _logger.LogInformation($"GetIsAdmin");
@@ -59,6 +60,19 @@ namespace BiatecIdentityGateway.Controllers
             if (!isAdmin) throw new Exception("You are not authorized to perform this action");
 
             return await _documentVerification.ConfirmValidityOfDocument(userId, userData, validationFailureReason, User.Identity.Name);
+        }
+
+        /// <summary>
+        /// Validators can check the KYC
+        /// </summary>
+        /// <param name="docId">Document id</param>
+        /// <returns>byte[] of the document</returns>
+        [Route("/v1/user-info/{userId}")]
+        [HttpGet]
+        public async Task<UserInfoV1?> GetUser([FromRoute] string userId)
+        {
+            await Task.Delay(100);
+            return await _documentVerification.GetUser(userId);
         }
         /// <summary>
         /// Lists the documents for specific user
