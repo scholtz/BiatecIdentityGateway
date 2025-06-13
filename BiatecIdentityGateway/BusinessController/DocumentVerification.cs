@@ -52,14 +52,14 @@ namespace BiatecIdentityGateway.BusinessController
         /// <returns></returns>
         public async Task<UserInfoV1?> GetUser(string userId)
         {
-            _logger.LogDebug($"Getting user info for {userId}");
+            _logger.LogInformation($"Getting user info for {userId}");
             foreach (var item in _options.Value.Apps)
             {
                 foreach (var app in item.Value)
                 {
                     try
                     {
-                        _logger.LogDebug($"Getting user info for {userId} at {item.Key} - {app.Value}");
+                        _logger.LogInformation($"Getting user info for {userId} at {item.Key} - {app.Value}");
                         if (!_chains.Value.AllowedNetworks.ContainsKey(item.Key))
                         {
                             _logger.LogError($"Chain is missing: {item.Key} - {app.Value}");
@@ -106,12 +106,12 @@ namespace BiatecIdentityGateway.BusinessController
             string verifierUserId
             )
         {
-            _logger.LogDebug($"Confirming validity of document for {userId} with reason: {validationFailureReason} by {verifierUserId}");
+            _logger.LogInformation($"Confirming validity of document for {userId} with reason: {validationFailureReason} by {verifierUserId}");
             foreach (var item in _options.Value.Apps)
             {
                 foreach (var app in item.Value)
                 {
-                    _logger.LogDebug($"Confirming validity of document for {userId} at {item.Key} - {app.Value}");
+                    _logger.LogInformation($"Confirming validity of document for {userId} at {item.Key} - {app.Value}");
                     if (!_chains.Value.AllowedNetworks.ContainsKey(item.Key))
                     {
                         _logger.LogError($"Chain is missing: {item.Key} - {app.Value}");
