@@ -73,12 +73,11 @@ namespace BiatecIdentityGateway.BusinessController
                     DefaultApi algodApiInstance = new DefaultApi(httpClient);
                     var contract = new BiatecIdentityProviderProxy(algodApiInstance, app);
                     _logger.LogInformation($"User info requested {userId} @ : {item.Key} - {app}");
-                    return await contract.GetUser(new Address(userId), 0, _account, 1000, _tx_boxes: new List<BoxRef>(){
+                    return await contract.GetUser(new Address(userId), (byte)1, _account, 1000, _tx_boxes: new List<BoxRef>(){
                         new BoxRef()
                         {
                             App = 0,
                             Name = box,
-
                         }
                     });
                 }
